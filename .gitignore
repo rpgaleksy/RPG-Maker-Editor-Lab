@@ -1,0 +1,17 @@
+# Local and generated files
+.DS_Store
+._*
+/build/
+/dist/
+/test-output/
+/.venv/
+__pycache__/
+*.py[cod]
+*.log
+# External binary research belongs outside this repository
+*.exe
+*.dll
+*.zip
+*.7z
+*.gpr
+*.rep/

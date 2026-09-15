@@ -91,13 +91,30 @@ Read the clock; mark unavailable information rather than guessing. Request instr
   them. Other tasks prepare the message and pause.
 - **Automated — experimental:** Requires an explicit user-approved demo configuration
   naming Terra, the worker tasks, allowed issues or task scope, stopping boundary, and any
-  local-commit grant. Terra is the sole dispatcher: it sends one assignment to one writer,
-  waits for that task to stop, reads its result, and then messages the appropriate reviewer
-  or next worker. Workers record results and proposed handoffs in their own tasks but do
-  not send them; Terra observes and forwards what is needed. Terra updates coordination
-  state only after write ownership returns, then selects the next ready item. Stop when
-  the approved scope is complete or a decision, permission, conflict, or material scope
-  expansion requires the user.
+  local-commit grant. Before use, provide a Git-ignored `coordination/runtime/` directory.
+  Terra is the sole dispatcher and assigns each work unit a unique ID. Before stopping,
+  the worker writes `coordination/runtime/<work-id>.md` with the work ID, sender, status,
+  changes, checks, limitations, recommended recipient/action, and confirmation that
+  writing has stopped. This temporary file is neither a tracker nor project evidence.
+
+  ```text
+  Work ID:
+  Sender:
+  Status: completed | blocked | failed | needs-user
+  Changed: <paths and committed/uncommitted state, or none>
+  Checks:
+  Limitations:
+  Next: <recommended recipient and action>
+  Writing stopped: yes | no
+  ```
+
+  Terra waits for the task to stop, verifies the matching return file against the
+  repository and tracker, then routes review, correction, or the next assignment. After
+  durable status is recorded and write ownership has returned, Terra may remove the
+  file. If it is missing, stale, or contradictory, Terra may inspect safely but must not
+  infer success or continue automatically; stop and ask the user. Stop likewise when the
+  approved scope ends or a decision, permission, conflict, or material expansion needs
+  the user.
 
 Knowing a task identifier alone authorizes nothing. Neither mode changes model settings
 or expands repository, spending, or external-action permissions.
